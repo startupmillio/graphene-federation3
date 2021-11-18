@@ -1,9 +1,12 @@
 version: '2.1'
 services:
   service_a:
-    build: integration_tests/service_a
+    build:
+      context: integration_tests/
+      dockerfile: Dockerfile
     volumes:
       - ./:/project/federation_deps
+      - ./integration_tests/service_a:/project/src
     command: sh -c "pip install ./federation_deps && python ./src/app.py"
     ports:
       - 3001:3000
@@ -14,9 +17,12 @@ services:
       retries: 10
 
   service_b:
-    build: integration_tests/service_b
+    build:
+      context: integration_tests/
+      dockerfile: Dockerfile
     volumes:
       - .:/project/federation_deps
+      - ./integration_tests/service_b:/project/src
     ports:
       - 3002:3000
     command: sh -c "pip install ./federation_deps && python ./src/app.py"
@@ -27,9 +33,10 @@ services:
       retries: 10
 
   service_c:
-    build: integration_tests/service_c
+    build: integration_tests/
     volumes:
       - .:/project/federation_deps
+      - ./integration_tests/service_c:/project/src
     ports:
       - 3003:3000
     command: sh -c "pip install ./federation_deps && python ./src/app.py"
@@ -40,9 +47,10 @@ services:
       retries: 10
 
   service_d:
-    build: integration_tests/service_d
+    build: integration_tests/
     volumes:
       - .:/project/federation_deps
+      - ./integration_tests/service_d:/project/src
     ports:
       - 3004:3000
     command: sh -c "pip install ./federation_deps && python ./src/app.py"

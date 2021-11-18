@@ -1,4 +1,0 @@
-graphene==3.0
-fastapi
-uvicorn
-starlette_graphene3
