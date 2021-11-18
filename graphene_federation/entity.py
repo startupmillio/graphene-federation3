@@ -3,6 +3,7 @@ from typing import Any, Dict, Union
 from graphene import List, Union, Schema
 
 import graphene
+from graphql import ObjectValueNode
 
 from . import graphql_compatibility
 from .graphene_types import _Any
@@ -56,16 +57,15 @@ def get_entity_query(schema: Schema):
         def resolve_entities(self, info, representations):
             entities = []
             for representation in representations:
-                # old type_ = schema.get_type(representation["__typename"])
-                print(schema)
-                print(representation)
-                from graphql.execution.values import get_argument_values
+                if isinstance(representation, ObjectValueNode):
+                    representation = {
+                        i.name.value: i.value.value for i in representation.fields
+                    }
 
-                # type_ = graphql_compatibility.call_schema_get_type(schema, representation["__typename"])
-                type_ = graphql_compatibility.call_schema_get_type(
-                    schema, representation.fields[0].value.value
-                )
+                schema_name = representation["__typename"]
+                type_ = graphql_compatibility.call_schema_get_type(schema, schema_name)
                 model = type_.graphene_type
+
                 model_arguments = representation.copy()
                 model_arguments.pop("__typename")
                 if graphql_compatibility.is_schema_in_auto_camelcase(schema):
