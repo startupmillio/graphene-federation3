@@ -75,7 +75,7 @@ integration test:
 
 build package:
   image: python:3.9
-  stage: build
+  stage: deploy
   only:
     - main
   before_script:
