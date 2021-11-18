@@ -1,4 +1,7 @@
+import ast
 import os
+import re
+from datetime import datetime
 
 from setuptools import setup
 
@@ -7,7 +10,13 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 
-version = "0.1.0"
+_version_re = re.compile(r"__version__\s+=\s+(.*)")
+
+with open("graphene_sqlalchemy_core/__init__.py", "rb") as f:
+    version = str(
+        ast.literal_eval(_version_re.search(f.read().decode("utf-8")).group(1))
+    )
+    version += f".{int(datetime.now().timestamp())}"
 
 setup(
     name="graphene-federation3",
