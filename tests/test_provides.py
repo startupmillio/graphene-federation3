@@ -289,6 +289,14 @@ extend type Product  @key(fields: "sku") {
 }
 """
 
+SDL_QUERY = """
+query {
+    _service {
+        sdl
+    }
+}
+"""
+
 
 def test_provides():
     """
@@ -316,14 +324,7 @@ def test_provides():
         expected_3=PROVIDES_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    query = """
-    query {
-        _service {
-            sdl
-        }
-    }
-    """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         schema=schema,
@@ -359,14 +360,7 @@ def test_provides_multiple_fields():
         expected_3=MULTIPLE_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    query = """
-    query {
-        _service {
-            sdl
-        }
-    }
-    """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         schema=schema,
@@ -402,14 +396,7 @@ def test_provides_multiple_fields_as_list():
         expected_3=LIST_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    query = """
-    query {
-        _service {
-            sdl
-        }
-    }
-    """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         schema=schema,
