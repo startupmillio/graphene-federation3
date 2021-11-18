@@ -72,3 +72,17 @@ integration test:
     - docker-compose up -d --build service_a service_b service_c service_d federation || docker-compose logs
   script:
     - docker-compose run --rm test pytest ./src
+
+build package:
+  image: python:3.9
+  stage: build
+  only:
+    - main
+  before_script:
+    - pip install twine setuptools wheel
+  variables:
+    TWINE_USERNAME: gitlab-ci-token
+    TWINE_PASSWORD: $CI_JOB_TOKEN
+  script:
+    - python setup.py sdist bdist_wheel
+    - python -m twine upload --verbose --repository-url https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*

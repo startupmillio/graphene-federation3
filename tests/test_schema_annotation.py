@@ -1,11 +1,9 @@
-from graphql import graphql
+from graphene import Field, ID, NonNull, ObjectType, String
 
-from graphene import ObjectType, ID, String, NonNull, Field, Schema
-
-from graphene_federation import graphql_compatibility
-from graphene_federation.entity import key
-from graphene_federation.extend import extend, external
-from graphene_federation.main import build_schema
+from graphene_federation3 import graphql_compatibility
+from graphene_federation3.entity import key
+from graphene_federation3.extend import extend, external
+from graphene_federation3.main import build_schema
 
 # ------------------------
 # User service

@@ -1,9 +1,9 @@
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from graphene import Schema
 from graphene.utils.str_converters import to_camel_case
 
-from graphene_federation import graphql_compatibility
+from graphene_federation3 import graphql_compatibility
 
 
 def field_name_to_type_attribute(schema: Schema, model: Any) -> Callable[[str], str]:

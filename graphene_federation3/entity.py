@@ -1,8 +1,7 @@
 from typing import Any, Dict, Union
 
-from graphene import List, Union, Schema
-
 import graphene
+from graphene import List, Schema, Union
 from graphql import ObjectValueNode
 
 from . import graphql_compatibility

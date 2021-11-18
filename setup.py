@@ -1,4 +1,5 @@
 import os
+
 from setuptools import setup
 
 
@@ -9,8 +10,8 @@ def read(*rnames):
 version = "0.1.0"
 
 setup(
-    name="graphene-federation",
-    packages=["graphene_federation"],
+    name="graphene-federation3",
+    packages=["graphene_federation3"],
     version=version,
     license="MIT",
     description="Federation implementation for graphene",

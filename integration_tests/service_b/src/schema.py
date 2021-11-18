@@ -1,5 +1,6 @@
-from graphene import ObjectType, String, Int, Field, Interface, Mutation
-from graphene_federation import build_schema, key
+from graphene import Int, Interface, Mutation, ObjectType, String
+
+from graphene_federation3 import build_schema, key
 
 
 class TextInterface(Interface):

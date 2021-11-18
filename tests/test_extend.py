@@ -1,8 +1,7 @@
 import pytest
+from graphene import ID, ObjectType, String
 
-from graphene import ObjectType, ID, String
-
-from graphene_federation.extend import extend
+from graphene_federation3.extend import extend
 
 
 def test_extend_non_existing_field_failure():

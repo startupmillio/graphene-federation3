@@ -1,5 +1,6 @@
-from graphene import ObjectType, Int, Field
-from graphene_federation import build_schema, extend, external
+from graphene import Field, Int, ObjectType
+
+from graphene_federation3 import build_schema, extend, external
 
 """
 Alphabet order - matters

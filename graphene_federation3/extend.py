@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Union
 
 from graphene import Schema
 
-from graphene_federation import graphql_compatibility
+from graphene_federation3 import graphql_compatibility
 
 
 def get_extended_types(schema: Schema) -> Dict[str, Any]:

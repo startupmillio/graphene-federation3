@@ -1,10 +1,9 @@
 import pytest
-
 from graphene import Field, ID, Int, ObjectType, String
 
-from graphene_federation import graphql_compatibility
-from graphene_federation.extend import extend, external, requires
-from graphene_federation.main import build_schema
+from graphene_federation3 import graphql_compatibility
+from graphene_federation3.extend import extend, external, requires
+from graphene_federation3.main import build_schema
 
 PRODUCT_SCHEMA_2 = """schema {
   query: Query

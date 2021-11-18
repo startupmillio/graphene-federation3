@@ -1,5 +1,6 @@
 import graphene
-from graphene_federation import build_schema, extend, external
+
+from graphene_federation3 import build_schema, extend, external
 
 
 @extend(fields="id")

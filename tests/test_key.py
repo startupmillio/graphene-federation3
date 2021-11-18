@@ -1,13 +1,9 @@
 import pytest
+from graphene import Field, ID, ObjectType, String
 
-from graphql import graphql
-
-from graphene import ObjectType, ID, String, Field
-
-from graphene_federation import graphql_compatibility
-from graphene_federation.entity import key
-from graphene_federation.main import build_schema
-
+from graphene_federation3 import graphql_compatibility
+from graphene_federation3.entity import key
+from graphene_federation3.main import build_schema
 
 MULTIPLE_KEYS_SCHEMA_2 = """schema {
   query: Query

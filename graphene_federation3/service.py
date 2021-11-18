@@ -1,14 +1,11 @@
 import re
+from typing import List
 
-from typing import Any, Dict, List
+from graphene import Field, ObjectType, Schema, String
 
-import graphene
-from graphene import ObjectType, String, Field, Schema
-
-from graphene_federation.extend import get_extended_types
-from graphene_federation.provides import get_provides_parent_types
+from graphene_federation3.extend import get_extended_types
+from graphene_federation3.provides import get_provides_parent_types
 from . import graphql_compatibility
-
 from .entity import get_entities
 from .utils import field_name_to_type_attribute, type_attribute_to_field_name
 

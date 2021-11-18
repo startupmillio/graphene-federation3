@@ -1,5 +1,6 @@
-from graphene import ObjectType, String, Int, List, NonNull, Field, Interface
-from graphene_federation import build_schema, extend, external
+from graphene import Field, Int, Interface, List, NonNull, ObjectType, String
+
+from graphene_federation3 import build_schema, extend, external
 
 
 class DecoratedText(Interface):

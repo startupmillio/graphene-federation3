@@ -1,5 +1,6 @@
 import graphene
-from graphene_federation import build_schema, key
+
+from graphene_federation3 import build_schema, key
 
 
 def get_file_by_id(id):

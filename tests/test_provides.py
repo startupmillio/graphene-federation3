@@ -1,11 +1,9 @@
-from graphql import graphql
-
 from graphene import Field, Int, ObjectType, String
 
-from graphene_federation import graphql_compatibility
-from graphene_federation.provides import provides
-from graphene_federation.main import build_schema
-from graphene_federation.extend import extend, external
+from graphene_federation3 import graphql_compatibility
+from graphene_federation3.extend import extend, external
+from graphene_federation3.main import build_schema
+from graphene_federation3.provides import provides
 
 PROVIDES_SCHEMA_2 = """schema {
   query: Query

@@ -1,8 +1,5 @@
-# graphene-federation
+# graphene-federation3
 Federation support for graphene
-
-Build: [![CircleCI](https://circleci.com/gh/preply/graphene-federation.svg?style=svg)](https://circleci.com/gh/preply/graphene-federation)
-
 
 Federation specs implementation on top of Python graphene lib 
 https://www.apollographql.com/docs/apollo-server/federation/federation-spec/
@@ -28,11 +25,11 @@ Supports now:
 * extend  # extend remote types
 * external  # mark field as external 
 * requires  # mark that field resolver requires other fields to be pre-fetched
-* provides  # to annotate the expected returned fieldset from a field on a base type that is guaranteed to be selectable by the gateway. 
+* provides # to annotate the expected returned fieldset from a field on a base type that is guaranteed to be selectable by the gateway. 
     * **Base class should be decorated with `@provides`** as well as field on a base type that provides. Check example bellow:
     ```python
         import graphene
-        from graphene_federation import provides
+        from graphene_federation3 import provides
         
         @provides
         class ArticleThatProvideAuthorAge(graphene.ObjectType):
@@ -41,12 +38,13 @@ Supports now:
             author = provides(Field(User), fields='age')
     ```
 
-
 ```python
 import graphene
-from graphene_federation import build_schema, key
+from graphene_federation3 import build_schema, key
 
-@key(fields='id')  # mark File as Entity and add in EntityUnion https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#key
+
+@key(
+    fields='id')  # mark File as Entity and add in EntityUnion https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#key
 class File(graphene.ObjectType):
     id = graphene.Int(required=True)
     name = graphene.String()
@@ -57,27 +55,28 @@ class File(graphene.ObjectType):
     def resolve_name(self, info, **kwargs):
         return self.name
 
-    def __resolve_reference(self, info, **kwargs):  # https://www.apollographql.com/docs/apollo-server/api/apollo-federation/#__resolvereference
+    def __resolve_reference(self, info,
+                            **kwargs):  # https://www.apollographql.com/docs/apollo-server/api/apollo-federation/#__resolvereference
         return get_file_by_id(self.id)
 ```
 
-
 ```python
 import graphene
-from graphene_federation import build_schema
+from graphene_federation3 import build_schema
 
 
 class Query(graphene.ObjectType):
     ...
     pass
 
+
 schema = build_schema(Query)  # add _service{sdl} field in Query
 ```
 
-
 ```python
 import graphene
-from graphene_federation import external, extend
+from graphene_federation3 import external, extend
+
 
 @extend(fields='id')
 class Message(graphene.ObjectType):
@@ -91,7 +90,7 @@ class Message(graphene.ObjectType):
 ### __resolve_reference
 * Each type which is decorated with `@key` or `@extend` is added to `_Entity` union
 * `__resolve_reference` method can be defined for each type that is an entity. This method is called whenever an entity is requested as part of the fulfilling a query plan.
-If not explicitly defined, default resolver is used. Default resolver just creates instance of type with passed fieldset as kwargs, see [`entity.get_entity_query`](graphene_federation/entity.py) for more details
+If not explicitly defined, default resolver is used. Default resolver just creates instance of type with passed fieldset as kwargs, see [`entity.get_entity_query`](graphene_federation3/entity.py) for more details
 * You should define `__resolve_reference`, if you need to extract object before passing it to fields resolvers (example: [FileNode](integration_tests/service_b/src/schema.py))
 * You should not define `__resolve_reference`, if fileds resolvers need only data passed in fieldset (example: [FunnyText](integration_tests/service_a/src/schema.py))
 * read more in [official documentation](https://www.apollographql.com/docs/apollo-server/api/apollo-federation/#__resolvereference)

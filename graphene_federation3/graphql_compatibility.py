@@ -2,8 +2,7 @@
 Allows the project to interact to graphql using both graphene 2.1.8 and 3.0.0b7.
 Other function to preserve backwards compatibiolity may be added in the future
 """
-import itertools
-from typing import Dict, Optional, Callable, Union
+from typing import Dict, Optional
 
 from graphene import Schema
 from graphene.types.schema import TypeMap
@@ -72,8 +71,6 @@ def call_schema_print_fields(schema: Schema, t: type) -> Dict[str, any]:
     if major == 2:
         from graphql.utils.schema_printer import (
             _print_fields as print_fields,
-            _print_args,
-            _print_deprecated,
         )
 
         # TODO remove
@@ -114,12 +111,7 @@ def get_schema_str(schema: Schema) -> str:
     elif major == 3:
         from graphql.utilities.print_schema import (
             print_schema,
-            print_schema_definition,
-            print_directive,
-            print_type,
-            print_introspection_schema,
         )
-        from graphql.utilities.print_schema import print_schema_definition
 
         def print_schema_definition_forced(
             schema: "GraphQLSchema",
