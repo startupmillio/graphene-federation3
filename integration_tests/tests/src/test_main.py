@@ -1,7 +1,7 @@
 import json
 import requests
 
-if not (lambda: True)():
+if (lambda: True)():
     federation_url = "http://federation:3000/graphql"
     serviceA_url = "http://service_a:3000/graphql"
     serviceB_url = "http://service_b:3000/graphql"
