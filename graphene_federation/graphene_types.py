@@ -1,5 +1,6 @@
 import graphene
 
+
 class _Any(graphene.Scalar):
     """Anything"""
 

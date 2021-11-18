@@ -3,10 +3,10 @@ from graphene_federation import build_schema, key
 
 
 def get_file_by_id(id):
-    return File(**{'id': id, 'name': 'test_name'})
+    return File(**{"id": id, "name": "test_name"})
 
 
-@key(fields='id')
+@key(fields="id")
 class File(graphene.ObjectType):
     id = graphene.Int(required=True)
     name = graphene.String()
@@ -25,23 +25,23 @@ class Query(graphene.ObjectType):
     file = graphene.Field(File)
 
     def resolve_file(self, **kwargs):
-        return None   # no direct access
+        return None  # no direct access
 
 
 schema = build_schema(Query)
 
-query = '''
+query = """
     query getSDL {
       _service {
          sdl
       }
     }
-'''
+"""
 result = schema.execute(query)
 print(result.data)
 # OrderedDict([('_service', OrderedDict([('sdl', '   type File @key(fields: "id") {   id: Int!   name: String }  extend type Query {   hello: String   file: File } ')]))])
 
-query ='''
+query = """
     query entities($_representations: [_Any!]!) {
       _entities(representations: $_representations) {
         ... on File {
@@ -51,15 +51,10 @@ query ='''
       }
     }
     
-'''
+"""
 
-result = schema.execute(query, variables={
-    "_representations": [
-      {
-        "__typename": "File",
-        "id": 1
-      }
-    ]
-})
+result = schema.execute(
+    query, variables={"_representations": [{"__typename": "File", "id": 1}]}
+)
 print(result.data)
 # OrderedDict([('_entities', [OrderedDict([('id', 1), ('name', 'test_name')])])])

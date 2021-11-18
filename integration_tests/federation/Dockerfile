@@ -7,4 +7,6 @@ ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true && npm ci
 RUN apk add curl
 
-CMD [ "npm", "start"]
+COPY ./src src/
+
+CMD ["npm", "start"]

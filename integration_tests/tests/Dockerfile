@@ -1,7 +1,8 @@
-FROM python:3.6-alpine3.9
+FROM python:3.9-alpine
 
 WORKDIR project
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
+RUN apk add curl
 
-CMD [ "pytest", "-s"]
+COPY ./requirements.txt ./
+RUN pip install -r requirements.txt
+COPY ./src src/
