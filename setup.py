@@ -23,7 +23,7 @@ setup(
     packages=["graphene_federation3"],
     version=version,
     license="MIT",
-    description="Federation implementation for graphene",
+    description="Federation implementation for graphene3",
     long_description=(read("README.md")),
     long_description_content_type="text/markdown",
     author="Yorsh Siarhei",
