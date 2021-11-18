@@ -12,7 +12,7 @@ def read(*rnames):
 
 _version_re = re.compile(r"__version__\s+=\s+(.*)")
 
-with open("graphene_sqlalchemy_core/__init__.py", "rb") as f:
+with open("graphene_federation3/__init__.py", "rb") as f:
     version = str(
         ast.literal_eval(_version_re.search(f.read().decode("utf-8")).group(1))
     )
