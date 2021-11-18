@@ -11,6 +11,9 @@ coverage = "*"
 
 [packages]
 graphene = "*"
+uvicorn = "*"
+fastapi = "*"
+starlette_graphene3 = "*"
 
 [requires]
 python_version = "3"

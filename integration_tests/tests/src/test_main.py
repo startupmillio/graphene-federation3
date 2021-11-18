@@ -1,11 +1,18 @@
 import json
 import requests
 
-federation_url = "http://federation:3000/graphql"
-serviceA_url = "http://service_a:3000/graphql"
-serviceB_url = "http://service_b:3000/graphql"
-serviceC_url = "http://service_c:3000/graphql"
-serviceD_url = "http://service_d:3000/graphql"
+if not (lambda: True)():
+    federation_url = "http://federation:3000/graphql"
+    serviceA_url = "http://service_a:3000/graphql"
+    serviceB_url = "http://service_b:3000/graphql"
+    serviceC_url = "http://service_c:3000/graphql"
+    serviceD_url = "http://service_d:3000/graphql"
+else:
+    federation_url = "http://127.0.0.1:3000/graphql"
+    serviceA_url = "http://127.0.0.1:3001/graphql"
+    serviceB_url = "http://127.0.0.1:3002/graphql"
+    serviceC_url = "http://127.0.0.1:3003/graphql"
+    serviceD_url = "http://127.0.0.1:3004/graphql"
 
 
 def test_integrate_simple_schema():
