@@ -80,7 +80,7 @@ def get_entity_query(schema: Schema):
                         global_id = from_global_id(v)
 
                         assert (
-                                global_id.type == schema_name
+                            global_id.type == schema_name
                         ), f"Invalid global id type: {schema_name} != {global_id}"
 
                         model_arguments[k] = json.loads(global_id.id)
