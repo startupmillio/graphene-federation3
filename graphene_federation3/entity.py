@@ -1,8 +1,10 @@
+import json
 from typing import Any, Dict, Union
 
 import graphene
 from graphene import List, Schema, Union
 from graphql import ObjectValueNode
+from graphql_relay import from_global_id
 
 from . import graphql_compatibility
 from .graphene_types import _Any
@@ -72,6 +74,17 @@ def get_entity_query(schema: Schema):
                     model_arguments = {
                         get_model_attr(k): v for k, v in model_arguments.items()
                     }
+
+                for k, v in model_arguments.items():
+                    if isinstance(getattr(model, k, None), graphene.types.ID):
+                        global_id = from_global_id(v)
+
+                        assert (
+                                global_id.type == schema_name
+                        ), f"Invalid global id type: {schema_name} != {global_id}"
+
+                        model_arguments[k] = json.loads(global_id.id)
+
                 model_instance = model(**model_arguments)
 
                 resolver = getattr(
