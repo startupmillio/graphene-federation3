@@ -83,6 +83,10 @@ def get_entity_query(schema: Schema):
                         model, representations
                     )
                     for representation in representations:
+                        if not representation[external_key]:
+                            entities.append(None)
+                            continue
+
                         argument = ArgumentNode(
                             name=NameNode(value=f"{external_key}_Eq"),
                             value=StringValueNode(value=representation[external_key]),
