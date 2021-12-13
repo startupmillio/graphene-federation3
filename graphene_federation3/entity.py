@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from typing import Any, Dict, Union
 
 import graphene
@@ -62,7 +63,7 @@ def get_entity_query(schema: Schema):
 
         async def resolve_entities(self, info, representations):
             entities = []
-            type_mapping = {}
+            type_mapping = defaultdict(list)
             for representation in representations:
                 if isinstance(representation, ObjectValueNode):
                     representation = {
@@ -70,10 +71,7 @@ def get_entity_query(schema: Schema):
                     }
 
                 schema_name = representation["__typename"]
-                if schema_name in type_mapping:
-                    type_mapping[schema_name].append(representation)
-                else:
-                    type_mapping[schema_name] = [representation]
+                type_mapping[schema_name].append(representation)
 
             for schema_name, representations in type_mapping.items():
                 type_ = graphql_compatibility.call_schema_get_type(schema, schema_name)
