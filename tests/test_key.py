@@ -101,7 +101,7 @@ async def test_multiple_keys():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),

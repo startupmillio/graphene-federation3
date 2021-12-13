@@ -457,7 +457,7 @@ async def test_similar_field_name():
         }
     }
     """
-    result = await graphql(chat_schema, query)
+    result = await graphql(chat_schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -494,7 +494,7 @@ async def test_camel_case_field_name():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -531,7 +531,7 @@ async def test_camel_case_field_name_without_auto_camelcase():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -571,7 +571,7 @@ async def test_annotated_field_also_used_in_filter():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -611,7 +611,7 @@ async def test_annotate_object_with_meta_name():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),

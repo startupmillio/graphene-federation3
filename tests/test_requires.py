@@ -279,7 +279,7 @@ async def test_requires_multiple_fields():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -315,7 +315,7 @@ async def test_requires_multiple_fields_as_list():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -351,7 +351,7 @@ async def test_requires_with_input():
         }
     }
     """
-    result = await graphql(schema, query)
+    result = await graphql(schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),

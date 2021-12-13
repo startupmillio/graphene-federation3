@@ -270,7 +270,7 @@ async def test_user_schema():
         }
     }
     """
-    result = await graphql(user_schema, query)
+    result = await graphql(user_schema.graphql_schema, query)
     assert not result.errors
     assert result.data == {"user": {"name": "Jack"}}
     # Check the federation service schema definition language
@@ -281,7 +281,7 @@ async def test_user_schema():
         }
     }
     """
-    result = await graphql(user_schema, query)
+    result = await graphql(user_schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -304,7 +304,7 @@ async def test_chat_schema():
         }
     }
     """
-    result = await graphql(chat_schema, query)
+    result = await graphql(chat_schema.graphql_schema, query)
     assert not result.errors
     assert result.data == {"message": {"text": "Don't be rude Jack", "userId": "3"}}
     # Check the federation service schema definition language
@@ -315,7 +315,7 @@ async def test_chat_schema():
         }
     }
     """
-    result = await graphql(chat_schema, query)
+    result = await graphql(chat_schema.graphql_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),

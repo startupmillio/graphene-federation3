@@ -326,7 +326,7 @@ async def test_provides():
         expected_3=PROVIDES_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = await graphql(schema, SDL_QUERY)
+    result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -360,7 +360,7 @@ async def test_provides_multiple_fields():
         expected_3=MULTIPLE_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = await graphql(schema, SDL_QUERY)
+    result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
@@ -394,7 +394,7 @@ async def test_provides_multiple_fields_as_list():
         expected_3=LIST_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = await graphql(schema, SDL_QUERY)
+    result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
