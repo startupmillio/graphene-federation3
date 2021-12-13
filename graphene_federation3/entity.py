@@ -90,7 +90,10 @@ def get_entity_query(schema: Schema):
                         info.field_nodes[0].arguments = FrozenList([argument])
                         setattr(info.context, "representation", model.__name__)
                         result = await bulk_resolver(model, info)
-                        entities.extend([item.node for item in result.edges])
+                        if result.edges:
+                            entities.extend([item.node for item in result.edges])
+                        else:
+                            entities.append(None)
                 else:
                     for representation in representations:
                         model_arguments = representation.copy()
