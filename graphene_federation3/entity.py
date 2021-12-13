@@ -85,7 +85,7 @@ def get_entity_query(schema: Schema):
                     for representation in representations:
                         argument = ArgumentNode(
                             name=NameNode(value=f"{external_key}_Eq"),
-                            value=StringValueNode(value=representation[key]),
+                            value=StringValueNode(value=representation[external_key]),
                         )
                         info.field_nodes[0].arguments = FrozenList([argument])
                         setattr(info.context, "representation", model.__name__)
