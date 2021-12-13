@@ -1,5 +1,6 @@
 import pytest
 from graphene import Field, ID, ObjectType, String
+from graphql import graphql
 
 from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
@@ -76,7 +77,8 @@ type User @key(fields: "email") @key(fields: "identifier") {
 """
 
 
-def test_multiple_keys():
+@pytest.mark.asyncio
+async def test_multiple_keys():
     @key("identifier")
     @key("email")
     class User(ObjectType):
@@ -89,7 +91,6 @@ def test_multiple_keys():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=MULTIPLE_KEYS_SCHEMA_2,
         expected_3=MULTIPLE_KEYS_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -100,12 +101,10 @@ def test_multiple_keys():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=MULTIPLE_KEYS_RESPONSE_2,
         expected_3=MULTIPLE_KEYS_RESPONSE_3,
     )
 

@@ -1,4 +1,6 @@
+import pytest
 from graphene import Field, ID, NonNull, ObjectType, String
+from graphql import graphql
 
 from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
@@ -250,15 +252,14 @@ extend type ChatUser  @key(fields: "userId") {
 """
 
 
-def test_user_schema():
+@pytest.mark.asyncio
+async def test_user_schema():
     """
     Check that the user schema has been annotated correctly
     and that a request to retrieve a user works.
     """
     graphql_compatibility.assert_schema_is(
         actual=user_schema,
-        # graphene 2.0
-        expected_2=USER_SCHEMA_2,
         # graphene 3.0
         expected_3=USER_SCHEMA_3,
     )
@@ -269,7 +270,7 @@ def test_user_schema():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(user_schema, query)
+    result = await graphql(user_schema, query)
     assert not result.errors
     assert result.data == {"user": {"name": "Jack"}}
     # Check the federation service schema definition language
@@ -280,24 +281,21 @@ def test_user_schema():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(user_schema, query)
+    result = await graphql(user_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=user_schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=USER_QUERY_RESPONSE_2,
         expected_3=USER_QUERY_RESPONSE_3,
     )
 
 
-def test_chat_schema():
+@pytest.mark.asyncio
+async def test_chat_schema():
     """
     Check that the chat schema has been annotated correctly
     and that a request to retrieve a chat message works.
     """
-    graphql_compatibility.assert_schema_is(
-        actual=chat_schema, expected_2=CHAT_SCHEMA_2, expected_3=CHAT_SCHEMA_3
-    )
+    graphql_compatibility.assert_schema_is(actual=chat_schema, expected_3=CHAT_SCHEMA_3)
     query = """
     query {
         message(id: "4") {
@@ -306,7 +304,7 @@ def test_chat_schema():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(chat_schema, query)
+    result = await graphql(chat_schema, query)
     assert not result.errors
     assert result.data == {"message": {"text": "Don't be rude Jack", "userId": "3"}}
     # Check the federation service schema definition language
@@ -317,11 +315,9 @@ def test_chat_schema():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(chat_schema, query)
+    result = await graphql(chat_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=chat_schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=CHAT_QUERY_RESPONSE_2,
         expected_3=CHAT_QUERY_RESPONSE_3,
     )

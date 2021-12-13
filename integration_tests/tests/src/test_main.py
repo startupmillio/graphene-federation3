@@ -1,8 +1,9 @@
 import json
+import os
 
 import requests
 
-if (lambda: True)():
+if os.getenv("DOCKER"):
     federation_url = "http://federation:3000/graphql"
     serviceA_url = "http://service_a:3000/graphql"
     serviceB_url = "http://service_b:3000/graphql"
@@ -81,9 +82,7 @@ def test_external_types():
     assert {"id": 2, "body": "funny_text_2", "color": 4} == posts[1]["text"]
     assert posts[2]["files"] is None
     assert {"id": 3, "body": "funny_text_3", "color": 5} == posts[2]["text"]
-    assert {"id": 1001, "primaryEmail": "frank@frank.com",} == posts[
-        3
-    ]["author"]
+    assert {"id": 1001, "primaryEmail": "frank@frank.com"} == posts[3]["author"]
 
     assert articles == [
         {

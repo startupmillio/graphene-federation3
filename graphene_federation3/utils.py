@@ -1,5 +1,6 @@
 from typing import Any, Callable
 
+import graphene
 from graphene import Schema
 from graphene.utils.str_converters import to_camel_case
 
@@ -29,3 +30,13 @@ def type_attribute_to_field_name(schema: Schema) -> Callable[[str], str]:
         return lambda attr_name: to_camel_case(attr_name)
     else:
         return lambda attr_name: attr_name
+
+
+def get_data_for_id_filter_from_representations(
+    object_type: graphene.Field, representations: list
+):
+    if getattr(object_type, "_keys", None):
+        keys = getattr(object_type, "_keys")
+        for key in keys:
+            if key in representations[0]:
+                return key, [r[key] for r in representations]

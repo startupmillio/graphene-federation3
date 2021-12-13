@@ -1,5 +1,6 @@
 import pytest
 from graphene import Field, ID, Int, ObjectType, String
+from graphql import graphql
 
 from graphene_federation3 import graphql_compatibility
 from graphene_federation3.extend import extend, external, requires
@@ -249,7 +250,8 @@ def test_chain_requires_failure():
     assert "Can't chain `requires()` method calls on one field." == str(err.value)
 
 
-def test_requires_multiple_fields():
+@pytest.mark.asyncio
+async def test_requires_multiple_fields():
     """
     Check that requires can take more than one field as input.
     """
@@ -267,7 +269,6 @@ def test_requires_multiple_fields():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=PRODUCT_SCHEMA_2,
         expected_3=PRODUCT_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -278,17 +279,15 @@ def test_requires_multiple_fields():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=PRODUCTION_RESPONSE_2,
         expected_3=PRODUCTION_RESPONSE_3,
     )
 
 
-def test_requires_multiple_fields_as_list():
+async def test_requires_multiple_fields_as_list():
     """
     Check that requires can take more than one field as input.
     """
@@ -306,7 +305,6 @@ def test_requires_multiple_fields_as_list():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=MULTIPLE_FIELDS_SCHEMA_2,
         expected_3=MULTIPLE_FIELDS_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -317,17 +315,16 @@ def test_requires_multiple_fields_as_list():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=MULTIPLE_FIELDS_RESPONSE_2,
         expected_3=MULTIPLE_FIELDS_RESPONSE_3,
     )
 
 
-def test_requires_with_input():
+@pytest.mark.asyncio
+async def test_requires_with_input():
     """
     Test checking that the issue https://github.com/preply/graphene-federation/pull/47 is resolved.
     """
@@ -344,7 +341,6 @@ def test_requires_with_input():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=INPUT_SCHEMA_2,
         expected_3=INPUT_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -355,11 +351,9 @@ def test_requires_with_input():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=INPUT_RESPONSE_2,
         expected_3=INPUT_RESPONSE_3,
     )

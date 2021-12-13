@@ -1,4 +1,6 @@
+import pytest
 from graphene import Field, ID, ObjectType, String
+from graphql import graphql
 
 from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
@@ -421,7 +423,8 @@ type Potato @key(fields: "id") {
 """
 
 
-def test_similar_field_name():
+@pytest.mark.asyncio
+async def test_similar_field_name():
     """
     Test annotation with fields that have similar names.
     """
@@ -444,7 +447,6 @@ def test_similar_field_name():
     chat_schema = build_schema(query=ChatQuery)
     graphql_compatibility.assert_schema_is(
         actual=chat_schema,
-        expected_2=SIMILAR_FIELD_SCHEMA_2,
         expected_3=SIMILAR_FIELD_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -455,17 +457,16 @@ def test_similar_field_name():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(chat_schema, query)
+    result = await graphql(chat_schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=chat_schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=SIMILAR_FIELD_RESPONSE_2,
         expected_3=SIMILAR_FIELD_RESPONSE_3,
     )
 
 
-def test_camel_case_field_name():
+@pytest.mark.asyncio
+async def test_camel_case_field_name():
     """
     Test annotation with fields that have camel cases or snake case.
     """
@@ -483,7 +484,6 @@ def test_camel_case_field_name():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=CAMELCASE_SCHEMA_2,
         expected_3=CAMELCASE_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -494,17 +494,16 @@ def test_camel_case_field_name():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=CAMELCASE_RESPONSE_2,
         expected_3=CAMELCASE_RESPONSE_3,
     )
 
 
-def test_camel_case_field_name_without_auto_camelcase():
+@pytest.mark.asyncio
+async def test_camel_case_field_name_without_auto_camelcase():
     """
     Test annotation with fields that have camel cases or snake case but with the auto_camelcase disabled.
     """
@@ -522,7 +521,6 @@ def test_camel_case_field_name_without_auto_camelcase():
     schema = build_schema(query=Query, auto_camelcase=False)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=NOAUTOCAMELCASE_SCHEMA_2,
         expected_3=NOAUTOCAMELCASE_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -533,17 +531,16 @@ def test_camel_case_field_name_without_auto_camelcase():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=NOAUTOCAMELCASE_RESPONSE_2,
         expected_3=NOAUTOCAMELCASE_RESPONSE_3,
     )
 
 
-def test_annotated_field_also_used_in_filter():
+@pytest.mark.asyncio
+async def test_annotated_field_also_used_in_filter():
     """
     Test that when a field also used in filter needs to get annotated, it really annotates only the field.
     See issue https://github.com/preply/graphene-federation/issues/50
@@ -564,7 +561,6 @@ def test_annotated_field_also_used_in_filter():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=FILTER_SCHEMA_2,
         expected_3=FILTER_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -575,17 +571,15 @@ def test_annotated_field_also_used_in_filter():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=FILTER_RESPONSE_2,
         expected_3=FILTER_RESPONSE_3,
     )
 
 
-def test_annotate_object_with_meta_name():
+async def test_annotate_object_with_meta_name():
     @key("id")
     class B(ObjectType):
         class Meta:
@@ -607,7 +601,6 @@ def test_annotate_object_with_meta_name():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=METANAME_SCHEMA_2,
         expected_3=METANAME_SCHEMA_3,
     )
     # Check the federation service schema definition language
@@ -618,11 +611,9 @@ def test_annotate_object_with_meta_name():
         }
     }
     """
-    result = graphql_compatibility.perform_graphql_query(schema, query)
+    result = await graphql(schema, query)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=METANAME_RESPONSE_2,
         expected_3=METANAME_RESPONSE_3,
     )

@@ -1,4 +1,6 @@
+import pytest
 from graphene import Field, Int, ObjectType, String
+from graphql import graphql
 
 from graphene_federation3 import graphql_compatibility
 from graphene_federation3.extend import extend, external
@@ -298,7 +300,8 @@ query {
 """
 
 
-def test_provides():
+@pytest.mark.asyncio
+async def test_provides():
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -320,21 +323,19 @@ def test_provides():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=PROVIDES_SCHEMA_2,
         expected_3=PROVIDES_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
+    result = await graphql(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=PROVIDES_RESPONSE_2,
         expected_3=PROVIDES_RESPONSE_3,
     )
 
 
-def test_provides_multiple_fields():
+@pytest.mark.asyncio
+async def test_provides_multiple_fields():
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -356,21 +357,19 @@ def test_provides_multiple_fields():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=MULTIPLE_SCHEMA_2,
         expected_3=MULTIPLE_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
+    result = await graphql(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=MULTIPLE_RESPONSE_2,
         expected_3=MULTIPLE_RESPONSE_3,
     )
 
 
-def test_provides_multiple_fields_as_list():
+@pytest.mark.asyncio
+async def test_provides_multiple_fields_as_list():
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -392,15 +391,12 @@ def test_provides_multiple_fields_as_list():
     schema = build_schema(query=Query)
     graphql_compatibility.assert_schema_is(
         actual=schema,
-        expected_2=LIST_SCHEMA_2,
         expected_3=LIST_SCHEMA_3,
     )
     # Check the federation service schema definition language
-    result = graphql_compatibility.perform_graphql_query(schema, SDL_QUERY)
+    result = await graphql(schema, SDL_QUERY)
     assert not result.errors
     graphql_compatibility.assert_graphql_response_data(
-        schema=schema,
         actual=result.data["_service"]["sdl"].strip(),
-        expected_2=LIST_RESPONSE_2,
         expected_3=LIST_RESPONSE_3,
     )
