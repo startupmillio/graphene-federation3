@@ -8,6 +8,7 @@ pytest = "*"
 requests = "*"
 black = "*"
 coverage = "*"
+pytest-asyncio = "*"
 
 [packages]
 graphene = "*"
