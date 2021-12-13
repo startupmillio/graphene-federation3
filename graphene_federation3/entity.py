@@ -4,11 +4,16 @@ from typing import Any, Dict, Union
 import graphene
 from graphene import List, Schema, Union
 from graphql import ObjectValueNode
+from graphql import ArgumentNode, NameNode, StringValueNode, ListValueNode
+from graphql.pyutils import FrozenList
 from graphql_relay import from_global_id
 
 from . import graphql_compatibility
 from .graphene_types import _Any
-from .utils import field_name_to_type_attribute
+from .utils import (
+    field_name_to_type_attribute,
+    get_data_for_id_filter_from_representations,
+)
 
 
 def get_entities(schema: Schema) -> Dict[str, Any]:
@@ -55,8 +60,9 @@ def get_entity_query(schema: Schema):
             entity_type, name="_entities", representations=List(_Any)
         )
 
-        def resolve_entities(self, info, representations):
+        async def resolve_entities(self, info, representations):
             entities = []
+            type_mapping = {}
             for representation in representations:
                 if isinstance(representation, ObjectValueNode):
                     representation = {
@@ -64,36 +70,61 @@ def get_entity_query(schema: Schema):
                     }
 
                 schema_name = representation["__typename"]
+                if schema_name in type_mapping:
+                    type_mapping[schema_name].append(representation)
+                else:
+                    type_mapping[schema_name] = [representation]
+
+            for schema_name, representations in type_mapping.items():
                 type_ = graphql_compatibility.call_schema_get_type(schema, schema_name)
                 model = type_.graphene_type
 
-                model_arguments = representation.copy()
-                model_arguments.pop("__typename")
-                if graphql_compatibility.is_schema_in_auto_camelcase(schema):
-                    get_model_attr = field_name_to_type_attribute(schema, model)
-                    model_arguments = {
-                        get_model_attr(k): v for k, v in model_arguments.items()
-                    }
+                bulk_resolver = getattr(model, "_resolve_reference_bulk", None)
+                if bulk_resolver:
+                    external_key, values = get_data_for_id_filter_from_representations(
+                        model, representations
+                    )
 
-                for k, v in model_arguments.items():
-                    if isinstance(getattr(model, k, None), graphene.types.ID):
-                        global_id = from_global_id(v)
+                    argument = ArgumentNode(
+                        name=NameNode(value=f"{external_key}_In"),
+                        value=ListValueNode(
+                            values=[StringValueNode(value=r) for r in values]
+                        ),
+                    )
+                    info.field_nodes[0].arguments = FrozenList([argument])
+                    setattr(info.context, "representation", model.__name__)
+                    result = await bulk_resolver(model, info)
+                    entities.extend([item.node for item in result.edges])
 
-                        assert (
-                            global_id.type == schema_name
-                        ), f"Invalid global id type: {schema_name} != {global_id}"
+                else:
+                    for representation in representations:
+                        model_arguments = representation.copy()
+                        model_arguments.pop("__typename")
+                        if graphql_compatibility.is_schema_in_auto_camelcase(schema):
+                            get_model_attr = field_name_to_type_attribute(schema, model)
+                            model_arguments = {
+                                get_model_attr(k): v for k, v in model_arguments.items()
+                            }
 
-                        model_arguments[k] = json.loads(global_id.id)
+                        for k, v in model_arguments.items():
+                            if isinstance(getattr(model, k, None), graphene.types.ID):
+                                global_id = from_global_id(v)
 
-                model_instance = model(**model_arguments)
+                                assert (
+                                    global_id.type == schema_name
+                                ), f"Invalid global id type: {schema_name} != {global_id}"
 
-                resolver = getattr(
-                    model, "_%s__resolve_reference" % model.__name__, None
-                ) or getattr(model, "_resolve_reference", None)
-                if resolver:
-                    model_instance = resolver(model_instance, info)
+                                model_arguments[k] = json.loads(global_id.id)
 
-                entities.append(model_instance)
+                        model_instance = model(**model_arguments)
+                        resolver = getattr(
+                            model, "_%s__resolve_reference" % model.__name__, None
+                        ) or getattr(model, "_resolve_reference", None)
+                        if resolver:
+                            model_instance = resolver(model_instance, info)
+
+                        entities.append(model_instance)
+
             return entities
 
     return EntityQuery
