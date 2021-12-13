@@ -82,17 +82,15 @@ def get_entity_query(schema: Schema):
                     external_key, values = get_data_for_id_filter_from_representations(
                         model, representations
                     )
-
-                    argument = ArgumentNode(
-                        name=NameNode(value=f"{external_key}_In"),
-                        value=ListValueNode(
-                            values=[StringValueNode(value=r) for r in values]
-                        ),
-                    )
-                    info.field_nodes[0].arguments = FrozenList([argument])
-                    setattr(info.context, "representation", model.__name__)
-                    result = await bulk_resolver(model, info)
-                    entities.extend([item.node for item in result.edges])
+                    for entity in entities:
+                        argument = ArgumentNode(
+                            name=NameNode(value=f"{external_key}_Eq"),
+                            value=StringValueNode(value=entity[key]),
+                        )
+                        info.field_nodes[0].arguments = FrozenList([argument])
+                        setattr(info.context, "representation", model.__name__)
+                        result = await bulk_resolver(model, info)
+                        entities.extend([item.node for item in result.edges])
 
                 else:
                     for representation in representations:
