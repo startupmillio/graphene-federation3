@@ -82,16 +82,15 @@ def get_entity_query(schema: Schema):
                     external_key, values = get_data_for_id_filter_from_representations(
                         model, representations
                     )
-                    for entity in entities:
+                    for representation in representations:
                         argument = ArgumentNode(
                             name=NameNode(value=f"{external_key}_Eq"),
-                            value=StringValueNode(value=entity[key]),
+                            value=StringValueNode(value=representation[key]),
                         )
                         info.field_nodes[0].arguments = FrozenList([argument])
                         setattr(info.context, "representation", model.__name__)
                         result = await bulk_resolver(model, info)
                         entities.extend([item.node for item in result.edges])
-
                 else:
                     for representation in representations:
                         model_arguments = representation.copy()
