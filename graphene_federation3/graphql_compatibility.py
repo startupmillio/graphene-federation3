@@ -87,15 +87,3 @@ def is_schema_in_auto_camelcase(schema: Schema) -> bool:
     else:
         # Otherwise we trat it as the camel case is set
         return True
-
-
-# def print_fields(type_: Union[GraphQLObjectType, GraphQLInterfaceType]) -> str:
-#     try:
-#         # graphene 2.1.8
-#         import graphql.utils
-#         from graphql.utils.schema_printer import _print_fields as print_fields
-#         return print_fields(type_)
-#     except ImportError:
-#         # graphene 3.0.0
-#         from graphql.utilities.print_schema import print_fields
-#         return print_fields(type_)

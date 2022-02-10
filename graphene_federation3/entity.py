@@ -1,7 +1,6 @@
 import graphene
 import json
 from collections import defaultdict
-from functools import partial
 from typing import Any, Dict, Union
 
 from graphene import List, Schema, Union
@@ -15,7 +14,6 @@ from .graphene_types import _Any
 from .utils import (
     field_name_to_type_attribute,
     get_data_for_id_filter_from_representations,
-    encode_gql_id,
 )
 
 
@@ -84,9 +82,6 @@ def get_entity_query(schema: Schema):
                     external_key, values = get_data_for_id_filter_from_representations(
                         model, representations
                     )
-                    serialize_func = getattr(model, external_key).serialize
-                    if isinstance(getattr(model, external_key), graphene.ID):
-                        serialize_func = partial(encode_gql_id, model.__name__)
 
                     argument = ArgumentNode(
                         name=NameNode(value=f"{external_key}_In"),
@@ -99,11 +94,12 @@ def get_entity_query(schema: Schema):
                     setattr(info.context, "representation", model.__name__)
                     result = await bulk_resolver(model, info)
                     results_dict = {
-                        serialize_func(getattr(item.node, external_key)): item.node
+                        str(getattr(item.node, external_key)): item.node
                         for item in result.edges
                     }
                     for representation in representations:
-                        entities.append(results_dict.get(representation[external_key]))
+                        rid = from_global_id(representation[external_key])
+                        entities.append(results_dict.get(rid.id))
 
                 else:
                     for representation in representations:
