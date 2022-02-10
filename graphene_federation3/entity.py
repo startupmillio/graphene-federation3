@@ -1,8 +1,9 @@
+import graphene
 import json
 from collections import defaultdict
+from functools import partial
 from typing import Any, Dict, Union
 
-import graphene
 from graphene import List, Schema, Union
 from graphql import ObjectValueNode
 from graphql import ArgumentNode, NameNode, StringValueNode, ListValueNode
@@ -14,6 +15,7 @@ from .graphene_types import _Any
 from .utils import (
     field_name_to_type_attribute,
     get_data_for_id_filter_from_representations,
+    encode_gql_id,
 )
 
 
@@ -82,22 +84,27 @@ def get_entity_query(schema: Schema):
                     external_key, values = get_data_for_id_filter_from_representations(
                         model, representations
                     )
-                    for representation in representations:
-                        if not representation[external_key]:
-                            entities.append(None)
-                            continue
+                    serialize_func = getattr(model, external_key).serialize
+                    if isinstance(getattr(model, external_key), graphene.ID):
+                        serialize_func = partial(encode_gql_id, model.__name__)
 
-                        argument = ArgumentNode(
-                            name=NameNode(value=f"{external_key}_Eq"),
-                            value=StringValueNode(value=representation[external_key]),
-                        )
-                        info.field_nodes[0].arguments = FrozenList([argument])
-                        setattr(info.context, "representation", model.__name__)
-                        result = await bulk_resolver(model, info)
-                        if result.edges:
-                            entities.extend([item.node for item in result.edges])
-                        else:
-                            entities.append(None)
+                    argument = ArgumentNode(
+                        name=NameNode(value=f"{external_key}_In"),
+                        value=ListValueNode(
+                            values=[StringValueNode(value=r) for r in values]
+                        ),
+                    )
+
+                    info.field_nodes[0].arguments = FrozenList([argument])
+                    setattr(info.context, "representation", model.__name__)
+                    result = await bulk_resolver(model, info)
+                    results_dict = {
+                        serialize_func(getattr(item.node, external_key)): item.node
+                        for item in result.edges
+                    }
+                    for representation in representations:
+                        entities.append(results_dict.get(representation[external_key]))
+
                 else:
                     for representation in representations:
                         model_arguments = representation.copy()

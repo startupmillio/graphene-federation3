@@ -2,14 +2,11 @@ version: '2.1'
 services:
   service_a:
     build:
-      context: integration_tests/
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/project/federation_deps
-      - ./integration_tests/service_a:/project/src
-    command: sh -c "pip install ./federation_deps && python ./src/app.py"
+      context: .
+      dockerfile: integration_tests/Dockerfile
     ports:
-      - 3001:3000
+      - "3001:3000"
+    command: sh -c "python service_a/app.py"
     healthcheck:
       test: ["CMD", "curl", "-H", "Accept: text/html", "http://127.0.0.1:3000/graphql"]
       interval: 5s
@@ -18,14 +15,11 @@ services:
 
   service_b:
     build:
-      context: integration_tests/
-      dockerfile: Dockerfile
-    volumes:
-      - .:/project/federation_deps
-      - ./integration_tests/service_b:/project/src
+      context: .
+      dockerfile: integration_tests/Dockerfile
     ports:
-      - 3002:3000
-    command: sh -c "pip install ./federation_deps && python ./src/app.py"
+      - "3002:3000"
+    command: sh -c "python service_b/app.py"
     healthcheck:
       test: ["CMD", "curl", "-H", "Accept: text/html", "http://127.0.0.1:3000/graphql"]
       interval: 5s
@@ -33,13 +27,12 @@ services:
       retries: 10
 
   service_c:
-    build: integration_tests/
-    volumes:
-      - .:/project/federation_deps
-      - ./integration_tests/service_c:/project/src
+    build:
+      context: .
+      dockerfile: integration_tests/Dockerfile
     ports:
-      - 3003:3000
-    command: sh -c "pip install ./federation_deps && python ./src/app.py"
+      - "3003:3000"
+    command: sh -c "python service_c/app.py"
     healthcheck:
       test: ["CMD", "curl", "-H", "Accept: text/html", "http://127.0.0.1:3000/graphql"]
       interval: 5s
@@ -47,13 +40,12 @@ services:
       retries: 10
 
   service_d:
-    build: integration_tests/
-    volumes:
-      - .:/project/federation_deps
-      - ./integration_tests/service_d:/project/src
+    build:
+      context: .
+      dockerfile: integration_tests/Dockerfile
     ports:
-      - 3004:3000
-    command: sh -c "pip install ./federation_deps && python ./src/app.py"
+      - "3004:3000"
+    command: sh -c "python service_d/app.py"
     healthcheck:
       test: ["CMD", "curl", "-H", "Accept: text/html", "http://127.0.0.1:3000/graphql"]
       interval: 5s
@@ -63,7 +55,7 @@ services:
   federation:
     build: integration_tests/federation
     ports:
-      - 3000:3000
+      - "3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "-XGET", "http://localhost:3000/.well-known/apollo/server-health"]
       interval: 3s
