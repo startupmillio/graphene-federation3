@@ -6,9 +6,9 @@ name = "pypi"
 [dev-packages]
 pytest = "*"
 requests = "*"
-black = "*"
+black = "==22.1"
 coverage = "*"
-pytest-asyncio = "*"
+pytest-asyncio = "==0.15.1"
 
 [packages]
 graphene = "*"

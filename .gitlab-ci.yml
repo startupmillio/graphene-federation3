@@ -46,7 +46,7 @@ black:
     paths:
       - .cache
   script:
-    - pip install black==21.10b0
+    - pip install black==22.1.0
     - black --version
     - black --check --diff ./
 
@@ -56,8 +56,6 @@ integration test:
   services:
     - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_DRIVER: overlay2
     PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
     PIP_DOWNLOAD_CACHE: $CI_PROJECT_DIR/.cache/pip_download_cache
   cache:
@@ -66,9 +64,10 @@ integration test:
       - .cache
       - ~/.cache/pip
   before_script:
-    - apk add --no-cache docker-compose python3 && ln -sf python3 /usr/bin/python
-    - python3 -m ensurepip
-    - pip3 install --upgrade pip setuptools
+    - apk add --no-cache docker-compose
+    - docker version
+    - docker info
+    - docker-compose version
     - docker-compose up -d --build service_a service_b service_c service_d federation || docker-compose logs
   script:
     - docker-compose run --rm test pytest ./src
