@@ -69,7 +69,6 @@ def add_entity_fields_decorators(entity, schema: Schema, string_schema: str) -> 
         r"(type\s%s\s[^\{]*)\{\s*%s\s*\}"
         % (entity_name, re.escape(str_fields_original))
     )
-    string_schema_original = string_schema + ""
     string_schema = pattern.sub(r"\g<1> {\n%s\n}" % str_fields_annotated, string_schema)
     return string_schema
 
