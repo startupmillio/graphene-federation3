@@ -1,12 +1,22 @@
-import graphene
 import json
 from collections import defaultdict
-from typing import Any, Dict, Union
+from inspect import isawaitable
+from typing import Any, Dict, List
 
-from graphene import List, Schema, Union
-from graphql import ObjectValueNode
-from graphql import ArgumentNode, NameNode, StringValueNode, ListValueNode
-from graphql.pyutils import FrozenList
+import graphene
+from graphene import Schema
+from graphql import (
+    ArgumentNode,
+    FieldNode,
+    GraphQLField,
+    GraphQLObjectType,
+    GraphQLResolveInfo,
+    ListValueNode,
+    NameNode,
+    ObjectValueNode,
+    StringValueNode,
+)
+from graphql.pyutils import FrozenList, Path
 from graphql_relay import from_global_id
 
 from . import graphql_compatibility
@@ -15,6 +25,34 @@ from .utils import (
     field_name_to_type_attribute,
     get_data_for_id_filter_from_representations,
 )
+
+
+def copy_resolve_info(
+    info: GraphQLResolveInfo,
+    field_def: GraphQLField,
+    field_nodes: List[FieldNode],
+    parent_type: GraphQLObjectType,
+    path: Path,
+) -> GraphQLResolveInfo:
+    """Build the GraphQLResolveInfo object.
+
+    For internal use only."""
+    # The resolve function's first argument is a collection of information about
+    # the current execution state.
+    return GraphQLResolveInfo(
+        field_nodes[0].name.value,
+        field_nodes,
+        field_def.type,
+        parent_type,
+        path,
+        info.schema,
+        info.fragments,
+        info.root_value,
+        info.operation,
+        info.variable_values,
+        info.context,
+        info.is_awaitable,
+    )
 
 
 def get_entities(schema: Schema) -> Dict[str, Any]:
@@ -39,7 +77,7 @@ def get_entity_cls(entities: Dict[str, Any]):
     Create _Entity type which is a union of all the entities types.
     """
 
-    class _Entity(Union):
+    class _Entity(graphene.Union):
         class Meta:
             types = tuple(entities.values())
 
@@ -58,10 +96,10 @@ def get_entity_query(schema: Schema):
 
     class EntityQuery:
         entities = graphene.List(
-            entity_type, name="_entities", representations=List(_Any)
+            entity_type, name="_entities", representations=graphene.List(_Any)
         )
 
-        async def resolve_entities(self, info, representations):
+        async def resolve_entities(self, info: GraphQLResolveInfo, representations):
             entities = []
             type_mapping = defaultdict(list)
             for representation in representations:
@@ -92,14 +130,28 @@ def get_entity_query(schema: Schema):
 
                     info.field_nodes[0].arguments = FrozenList([argument])
                     setattr(info.context, "representation", model.__name__)
-                    result = await bulk_resolver(model, info)
-                    results_dict = {
-                        str(getattr(item.node, external_key)): item.node
-                        for item in result.edges
-                    }
+                    result = bulk_resolver(model, info)
+
+                    if isawaitable(result):
+                        result = await result
+
+                    results_dict = {}
+                    for edge in result.edges:
+                        field = type_.fields[external_key]
+                        fake_info = copy_resolve_info(
+                            info,
+                            field_def=field,
+                            field_nodes=info.field_nodes,
+                            parent_type=type_,
+                            path=Path(info.path, 1, None),
+                        )
+                        k = field.resolve(edge.node, fake_info)
+                        if isawaitable(k):
+                            k = await k
+                        results_dict[k] = edge.node
+
                     for representation in representations:
-                        rid = from_global_id(representation[external_key])
-                        entities.append(results_dict.get(rid.id))
+                        entities.append(results_dict.get(representation[external_key]))
 
                 else:
                     for representation in representations:
