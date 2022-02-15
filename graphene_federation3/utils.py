@@ -39,5 +39,6 @@ def get_data_for_id_filter_from_representations(
     if getattr(object_type, "_keys", None):
         keys = getattr(object_type, "_keys")
         for key in keys:
+            key = to_camel_case(key)
             if key in representations[0]:
                 return key, [r[key] for r in representations]
