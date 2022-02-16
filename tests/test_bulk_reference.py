@@ -12,7 +12,7 @@ query ($representations: [_Any]) {
   _entities(representations: $representations) {
     ... on User {
       id
-      email
+      emailField
     }
   }
 }
@@ -22,9 +22,9 @@ query ($representations: [_Any]) {
 @pytest.mark.asyncio
 async def test_global_id(raise_graphql):
     @key("id")
-    @key("email")
+    @key("email_field")
     class User(ObjectType):
-        email = String()
+        email_field = String()
 
         class Meta:
             interfaces = (relay.Node,)
@@ -42,7 +42,7 @@ async def test_global_id(raise_graphql):
 
         @classmethod
         def get_node(cls, info, id):
-            return User(id=id, email=f"{id}@email.com")
+            return User(id=id, email_field=f"{id}@email.com")
 
     class UserConnection(Connection):
         class Meta:
@@ -70,17 +70,17 @@ async def test_global_id(raise_graphql):
     )
     assert not result.errors
     assert result.data == {
-        "_entities": [{"email": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
+        "_entities": [{"emailField": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
     }
 
 
 @pytest.mark.asyncio
 async def test_local_id(raise_graphql):
     @key("id")
-    @key("email")
+    @key("email_field")
     class User(ObjectType):
         id = graphene.ID(required=True)
-        email = String()
+        email_field = String()
 
         class Meta:
             interfaces = (relay.Node,)
@@ -101,7 +101,7 @@ async def test_local_id(raise_graphql):
 
         @classmethod
         def get_node(cls, info, id):
-            return User(id=id, email=f"{id}@email.com")
+            return User(id=id, email_field=f"{id}@email.com")
 
     class UserConnection(Connection):
         class Meta:
@@ -129,16 +129,16 @@ async def test_local_id(raise_graphql):
     )
     assert not result.errors
     assert result.data == {
-        "_entities": [{"email": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
+        "_entities": [{"emailField": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
     }
 
 
 @pytest.mark.asyncio
 async def test_second_key(raise_graphql):
     @key("id")
-    @key("email")
+    @key("email_field")
     class User(ObjectType):
-        email = String()
+        email_field = String()
 
         class Meta:
             interfaces = (relay.Node,)
@@ -156,7 +156,7 @@ async def test_second_key(raise_graphql):
 
         @classmethod
         def get_node(cls, info, id):
-            return User(id=id, email=f"{id}@email.com")
+            return User(id=id, email_field=f"{id}@email.com")
 
     class UserConnection(Connection):
         class Meta:
@@ -178,11 +178,11 @@ async def test_second_key(raise_graphql):
         schema.graphql_schema,
         _query,
         variable_values={
-            "representations": [{"__typename": "User", "email": "identifier@email.com"}]
+            "representations": [{"__typename": "User", "emailField": "identifier@email.com"}]
         },
         context_value=Context,
     )
     assert not result.errors
     assert result.data == {
-        "_entities": [{"email": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
+        "_entities": [{"emailField": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}]
     }
