@@ -2,8 +2,11 @@ import json
 from collections import defaultdict
 from inspect import isawaitable
 from typing import Any, Dict, List
+from functools import partial
+from graphene.utils.str_converters import to_camel_case
 
 import graphene
+import graphql.type.scalars
 from graphene import Schema
 from graphql import (
     ArgumentNode,
@@ -23,7 +26,7 @@ from . import graphql_compatibility
 from .graphene_types import _Any
 from .utils import (
     field_name_to_type_attribute,
-    get_data_for_id_filter_from_representations,
+    get_data_for_id_filter_from_representations, encode_gql_id,
 )
 
 
@@ -121,6 +124,13 @@ def get_entity_query(schema: Schema):
                         model, representations
                     )
 
+                    field_type = type_.fields[to_camel_case(external_key)].type
+                    if isinstance(field_type, graphql.type.GraphQLNonNull):
+                        field_type = field_type.of_type
+                    serialize_func = field_type.serialize
+                    if field_type == graphql.type.scalars.GraphQLID:
+                        serialize_func = partial(encode_gql_id, model)
+
                     argument = ArgumentNode(
                         name=NameNode(value=f"{external_key}_In"),
                         value=ListValueNode(
@@ -137,21 +147,10 @@ def get_entity_query(schema: Schema):
 
                     results_dict = {}
                     for edge in result.edges:
-                        field = type_.fields[external_key]
-                        fake_info = copy_resolve_info(
-                            info,
-                            field_def=field,
-                            field_nodes=info.field_nodes,
-                            parent_type=type_,
-                            path=Path(info.path, 1, None),
-                        )
-                        k = field.resolve(edge.node, fake_info)
-                        if isawaitable(k):
-                            k = await k
-                        results_dict[k] = edge.node
+                        results_dict[serialize_func(getattr(edge.node, external_key))] = edge.node
 
                     for representation in representations:
-                        entities.append(results_dict.get(representation[external_key]))
+                        entities.append(results_dict.get(representation[to_camel_case(external_key)]))
 
                 else:
                     for representation in representations:
