@@ -1,6 +1,5 @@
 import base64
-import json
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import graphene
 from graphene import Schema
@@ -44,6 +43,5 @@ def get_data_for_id_filter_from_representations(
                 return key, [r[to_camel_case(key)] for r in representations]
 
 
-def encode_gql_id(type_: str, id_: Union[str, int]) -> str:
-    text = f"{type_}:{json.dumps(id_)}"
-    return base64.b64encode(text.encode()).decode()
+def encode_gql_id(type_: str, id_: int) -> str:
+    return base64.b64encode(f"{type_}:{id_}".encode()).decode()

@@ -147,10 +147,16 @@ def get_entity_query(schema: Schema):
 
                     results_dict = {}
                     for edge in result.edges:
-                        results_dict[serialize_func(getattr(edge.node, external_key))] = edge.node
+                        results_dict[
+                            serialize_func(getattr(edge.node, external_key))
+                        ] = edge.node
 
                     for representation in representations:
-                        entities.append(results_dict.get(representation[to_camel_case(external_key)]))
+                        entities.append(
+                            results_dict.get(
+                                representation[to_camel_case(external_key)]
+                            )
+                        )
 
                 else:
                     for representation in representations:
