@@ -1,4 +1,3 @@
-import base64
 from typing import Any, Callable
 
 import graphene
@@ -39,9 +38,6 @@ def get_data_for_id_filter_from_representations(
     if getattr(object_type, "_keys", None):
         keys = getattr(object_type, "_keys")
         for key in keys:
-            if to_camel_case(key) in representations[0]:
-                return key, [r[to_camel_case(key)] for r in representations]
-
-
-def encode_gql_id(type_: str, id_: int) -> str:
-    return base64.b64encode(f"{type_}:{id_}".encode()).decode()
+            key = to_camel_case(key)
+            if key in representations[0]:
+                return key, [r[key] for r in representations]
