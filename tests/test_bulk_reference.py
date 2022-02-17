@@ -125,14 +125,22 @@ async def test_local_id(raise_graphql):
         schema.graphql_schema,
         _query,
         variable_values={
-            "representations": [{"__typename": "User", "id": "VXNlcjppZGVudGlmaWVy"}]
+            "representations": [
+                {
+                    "__typename": "User",
+                    "id": "VXNlcjppZGVudGlmaWVy",
+                }
+            ]
         },
         context_value=Context,
     )
     assert not result.errors
     assert result.data == {
         "_entities": [
-            {"emailField": "identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}
+            {
+                "emailField": "identifier@email.com",
+                "id": "VXNlcjppZGVudGlmaWVy",
+            }
         ]
     }
 
@@ -142,14 +150,13 @@ async def test_changed_id(raise_graphql):
     @key("id")
     @key("email_field")
     class User(ObjectType):
-        id = graphene.ID(required=True)
         email_field = String()
 
         class Meta:
             interfaces = (relay.Node,)
 
-        def resolve_id(self, info):
-            return to_global_id(self.__class__.__name__, f"data_{self.id}")
+        def resolve_email_field(self, info):
+            return f"123+{self.email_field}"
 
         @classmethod
         def _resolve_reference_bulk(cls, model, info):
@@ -187,7 +194,7 @@ async def test_changed_id(raise_graphql):
         _query,
         variable_values={
             "representations": [
-                {"__typename": "User", "id": "VXNlcjpkYXRhX2lkZW50aWZpZXI="}
+                {"__typename": "User", "emailField": "123+identifier@email.com"}
             ]
         },
         context_value=Context,
@@ -195,10 +202,7 @@ async def test_changed_id(raise_graphql):
     assert not result.errors
     assert result.data == {
         "_entities": [
-            {
-                "emailField": "identifier@email.com",
-                "id": "VXNlcjpkYXRhX2lkZW50aWZpZXI=",
-            }
+            {"emailField": "123+identifier@email.com", "id": "VXNlcjppZGVudGlmaWVy"}
         ]
     }
 
