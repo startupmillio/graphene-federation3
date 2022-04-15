@@ -66,8 +66,7 @@ def add_entity_fields_decorators(entity, schema: Schema, string_schema: str) -> 
         schema, entity_type
     )
     pattern = re.compile(
-        r"(type\s%s\s[^\{]*)\{\s*%s\s*\}"
-        % (entity_name, re.escape(str_fields_original))
+        r"(type\s%s\s[^{]*)\{\s*%s\s*\}" % (entity_name, re.escape(str_fields_original))
     )
     string_schema = pattern.sub(r"\g<1> {\n%s\n}" % str_fields_annotated, string_schema)
     return string_schema
@@ -79,9 +78,7 @@ def get_sdl(schema: Schema) -> str:
     """
     string_schema = str(schema)
 
-    regex = r"schema \{(\w|\!|\s|\:)*\}"
-    pattern = re.compile(regex)
-    string_schema = pattern.sub(" ", string_schema)
+    string_schema = re.sub(r"schema \{[\w\s:!]*\}", " ", string_schema)
 
     # Get various objects that need to be amended
     extended_types = get_extended_types(schema)
@@ -106,8 +103,7 @@ def get_sdl(schema: Schema) -> str:
             [f'@key(fields: "{get_field_name(key)}")' for key in entity._keys]
         )
         repl_str = r"\1%s " % type_annotation
-        pattern = re.compile(type_def_re)
-        string_schema = pattern.sub(repl_str, string_schema)
+        string_schema = re.sub(type_def_re, repl_str, string_schema)
 
     return string_schema
 

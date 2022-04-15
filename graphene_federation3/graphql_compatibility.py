@@ -28,7 +28,7 @@ def assert_graphql_response_data(actual: str, expected_3: str):
     ), f"\n{actual.strip()}\n!=\n{expected_3.strip()}\nDIFFERENCES: {list(filter(lambda x: x[1][0] != x[1][1], enumerate(zip(actual.strip(), expected_3.strip()))))}"
 
 
-def call_schema_print_fields(schema: Schema, t: type) -> Dict[str, any]:
+def call_schema_print_fields(schema: Schema, t: type) -> str:
     # copy of print_fields from graphene 3.0.0 where we avoid calling print_blocks
     fields = [
         print_description(field, "  ", not i)
