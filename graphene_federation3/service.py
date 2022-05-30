@@ -54,6 +54,13 @@ def add_entity_fields_decorators(entity, schema: Schema, string_schema: str) -> 
         )
         # Check if we need to annotate the field by checking if it has the decorator attribute set on the field.
         f = getattr(entity, get_model_attr(field_name), None)
+
+        if f is None:
+            for k, v in entity._meta.fields.items():
+                if v.name == get_model_attr(field_name):
+                    f = getattr(entity, k, None)
+                    break
+
         if f is not None:
             for decorator, decorator_resolver in DECORATORS.items():
                 decorator_value = getattr(f, decorator, None)
