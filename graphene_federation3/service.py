@@ -5,8 +5,8 @@ from graphene import Field, ObjectType, Schema, String
 
 from graphene_federation3.extend import get_extended_types
 from graphene_federation3.provides import get_provides_parent_types
-from . import graphql_compatibility
 from .entity import get_entities
+from .graphql_compatibility import call_schema_get_type, call_schema_print_fields
 from .utils import field_name_to_type_attribute, type_attribute_to_field_name
 
 
@@ -45,19 +45,18 @@ def add_entity_fields_decorators(entity, schema: Schema, string_schema: str) -> 
     """
     entity_name = entity._meta.name
     # old entity_type = schema.get_type(entity_name)
-    entity_type = graphql_compatibility.call_schema_get_type(schema, entity_name)
+    entity_type = call_schema_get_type(schema, entity_name)
     str_fields = []
     get_model_attr = field_name_to_type_attribute(schema, entity)
     for field_name, field in entity_type.fields.items():
-        str_field = graphql_compatibility.call_schema_print_fields(
-            schema, MonoFieldType(field_name, field)
-        )
+        str_field = call_schema_print_fields(schema, MonoFieldType(field_name, field))
+        model_attr = get_model_attr(field_name)
         # Check if we need to annotate the field by checking if it has the decorator attribute set on the field.
-        f = getattr(entity, get_model_attr(field_name), None)
+        f = getattr(entity, model_attr, None)
 
         if f is None:
             for k, v in entity._meta.fields.items():
-                if v.name == get_model_attr(field_name):
+                if getattr(v, "name", None) == model_attr:
                     f = getattr(entity, k, None)
                     break
 
@@ -69,9 +68,7 @@ def add_entity_fields_decorators(entity, schema: Schema, string_schema: str) -> 
         str_fields.append(str_field)
     str_fields_annotated = "\n".join(str_fields)
     # Replace the original field declaration by the annotated one
-    str_fields_original = graphql_compatibility.call_schema_print_fields(
-        schema, entity_type
-    )
+    str_fields_original = call_schema_print_fields(schema, entity_type)
     pattern = re.compile(
         r"(type\s%s\s[^{]*)\{\s*%s\s*\}" % (entity_name, re.escape(str_fields_original))
     )
