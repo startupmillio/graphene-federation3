@@ -35,9 +35,14 @@ def type_attribute_to_field_name(schema: Schema) -> Callable[[str], str]:
 def get_data_for_id_filter_from_representations(
     object_type: graphene.Field, representations: list
 ):
+    key = get_model_key(object_type, representations[0])
+    return key, [r[key] for r in representations]
+
+
+def get_model_key(object_type, representation):
     if getattr(object_type, "_keys", None):
         keys = getattr(object_type, "_keys")
         for key in keys:
             key = to_camel_case(key)
-            if key in representations[0]:
-                return key, [r[key] for r in representations]
+            if key in representation:
+                return key
