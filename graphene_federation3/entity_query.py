@@ -1,7 +1,7 @@
 import json
 from collections import defaultdict
 from inspect import isawaitable
-from typing import List
+from typing import List, Dict, Any
 
 import graphene
 from graphene import Schema
@@ -17,12 +17,13 @@ from graphql import (
     StringValueNode,
 )
 from graphql.pyutils import FrozenList, Path
-from graphql_relay import from_global_id
+from graphql_relay import from_global_id, to_global_id
 
 from . import graphql_compatibility
 from .utils import (
     field_name_to_type_attribute,
     get_data_for_id_filter_from_representations,
+    get_model_key,
 )
 
 
@@ -75,17 +76,17 @@ class BaseEntityQuery:
 
     @classmethod
     async def resolve_entities(cls, obj, info: GraphQLResolveInfo, representations):
-        entities = []
         type_mapping = get_type_mapping(representations)
+        results_dict: Dict[str, Any] = {}
 
-        for schema_name, representations in type_mapping.items():
+        for schema_name, rps in type_mapping.items():
             type_ = graphql_compatibility.call_schema_get_type(cls._schema, schema_name)
             model = type_.graphene_type
 
             bulk_resolver = getattr(model, "_resolve_reference_bulk", None)
             if bulk_resolver:
                 external_key, values = get_data_for_id_filter_from_representations(
-                    model, representations
+                    model, rps
                 )
 
                 argument = ArgumentNode(
@@ -102,7 +103,6 @@ class BaseEntityQuery:
                 if isawaitable(result):
                     result = await result
 
-                results_dict = {}
                 for edge in result.edges:
                     field = type_.fields[external_key]
                     fake_info = copy_resolve_info(
@@ -119,13 +119,11 @@ class BaseEntityQuery:
 
                     results_dict[k] = edge.node
 
-                for representation in representations:
-                    entities.append(results_dict.get(representation[external_key]))
-
             else:
-                for representation in representations:
+                for representation in rps:
                     model_arguments = representation.copy()
                     model_arguments.pop("__typename")
+
                     if graphql_compatibility.is_schema_in_auto_camelcase(cls._schema):
                         get_model_attr = field_name_to_type_attribute(
                             cls._schema, model
@@ -133,6 +131,8 @@ class BaseEntityQuery:
                         model_arguments = {
                             get_model_attr(k): v for k, v in model_arguments.items()
                         }
+
+                    global_id = None
 
                     for k, v in model_arguments.items():
                         if isinstance(getattr(model, k, None), graphene.types.ID):
@@ -144,6 +144,9 @@ class BaseEntityQuery:
 
                             model_arguments[k] = json.loads(global_id.id)
 
+                    if not global_id:
+                        raise Exception("No global id")
+
                     model_instance = model(**model_arguments)
                     resolver = getattr(
                         model, "_%s__resolve_reference" % model.__name__, None
@@ -151,6 +154,19 @@ class BaseEntityQuery:
                     if resolver:
                         model_instance = resolver(model_instance, info)
 
-                    entities.append(model_instance)
+                        if isawaitable(model_instance):
+                            model_instance = await model_instance
+
+                    results_dict[
+                        to_global_id(global_id.type, global_id.id)
+                    ] = model_instance
+
+        entities = []
+        for representation in representations:
+            model = graphql_compatibility.call_schema_get_type(
+                cls._schema, representation["__typename"]
+            ).graphene_type
+            key_name = get_model_key(model, representation)
+            entities.append(results_dict.get(representation[key_name]))
 
         return entities
