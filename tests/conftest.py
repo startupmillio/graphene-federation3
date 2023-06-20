@@ -35,15 +35,15 @@ def raise_graphql():
 
 @pytest.fixture
 def assert_schema_is():
-    def cmp(actual: Schema, expected_3: str):
-        assert get_schema_str(actual).strip() == expected_3.strip()
+    def cmp(actual: Schema, expected: str):
+        assert get_schema_str(actual).strip() == expected.strip()
 
     return cmp
 
 
 @pytest.fixture
 def assert_graphql_response_data():
-    def cmp(actual: str, expected_3: str):
-        assert actual.strip() == expected_3.strip()
+    def cmp(actual: str, expected: str):
+        assert actual.strip() == expected.strip()
 
     return cmp

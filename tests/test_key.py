@@ -90,7 +90,7 @@ async def test_multiple_keys(assert_schema_is, assert_graphql_response_data):
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=MULTIPLE_KEYS_SCHEMA_3,
+        expected=MULTIPLE_KEYS_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -104,7 +104,7 @@ async def test_multiple_keys(assert_schema_is, assert_graphql_response_data):
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=MULTIPLE_KEYS_RESPONSE_3,
+        expected=MULTIPLE_KEYS_RESPONSE_3,
     )
 
 

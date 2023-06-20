@@ -446,7 +446,7 @@ async def test_similar_field_name(assert_schema_is, assert_graphql_response_data
     chat_schema = build_schema(query=ChatQuery)
     assert_schema_is(
         actual=chat_schema,
-        expected_3=SIMILAR_FIELD_SCHEMA_3,
+        expected=SIMILAR_FIELD_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -460,7 +460,7 @@ async def test_similar_field_name(assert_schema_is, assert_graphql_response_data
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=SIMILAR_FIELD_RESPONSE_3,
+        expected=SIMILAR_FIELD_RESPONSE_3,
     )
 
 
@@ -483,7 +483,7 @@ async def test_camel_case_field_name(assert_schema_is, assert_graphql_response_d
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=CAMELCASE_SCHEMA_3,
+        expected=CAMELCASE_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -497,7 +497,7 @@ async def test_camel_case_field_name(assert_schema_is, assert_graphql_response_d
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=CAMELCASE_RESPONSE_3,
+        expected=CAMELCASE_RESPONSE_3,
     )
 
 
@@ -522,7 +522,7 @@ async def test_camel_case_field_name_without_auto_camelcase(
     schema = build_schema(query=Query, auto_camelcase=False)
     assert_schema_is(
         actual=schema,
-        expected_3=NOAUTOCAMELCASE_SCHEMA_3,
+        expected=NOAUTOCAMELCASE_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -536,7 +536,7 @@ async def test_camel_case_field_name_without_auto_camelcase(
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=NOAUTOCAMELCASE_RESPONSE_3,
+        expected=NOAUTOCAMELCASE_RESPONSE_3,
     )
 
 
@@ -564,7 +564,7 @@ async def test_annotated_field_also_used_in_filter(
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=FILTER_SCHEMA_3,
+        expected=FILTER_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -578,7 +578,7 @@ async def test_annotated_field_also_used_in_filter(
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=FILTER_RESPONSE_3,
+        expected=FILTER_RESPONSE_3,
     )
 
 
@@ -606,7 +606,7 @@ async def test_annotate_object_with_meta_name(
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=METANAME_SCHEMA_3,
+        expected=METANAME_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -620,5 +620,5 @@ async def test_annotate_object_with_meta_name(
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=METANAME_RESPONSE_3,
+        expected=METANAME_RESPONSE_3,
     )

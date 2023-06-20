@@ -268,7 +268,7 @@ async def test_requires_multiple_fields(assert_schema_is, assert_graphql_respons
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=PRODUCT_SCHEMA_3,
+        expected=PRODUCT_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -282,7 +282,7 @@ async def test_requires_multiple_fields(assert_schema_is, assert_graphql_respons
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=PRODUCTION_RESPONSE_3,
+        expected=PRODUCTION_RESPONSE_3,
     )
 
 
@@ -306,7 +306,7 @@ async def test_requires_multiple_fields_as_list(
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=MULTIPLE_FIELDS_SCHEMA_3,
+        expected=MULTIPLE_FIELDS_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -320,7 +320,7 @@ async def test_requires_multiple_fields_as_list(
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=MULTIPLE_FIELDS_RESPONSE_3,
+        expected=MULTIPLE_FIELDS_RESPONSE_3,
     )
 
 
@@ -342,7 +342,7 @@ async def test_requires_with_input(assert_schema_is, assert_graphql_response_dat
     schema = build_schema(query=Query)
     assert_schema_is(
         actual=schema,
-        expected_3=INPUT_SCHEMA_3,
+        expected=INPUT_SCHEMA_3,
     )
     # Check the federation service schema definition language
     query = """
@@ -356,5 +356,5 @@ async def test_requires_with_input(assert_schema_is, assert_graphql_response_dat
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=INPUT_RESPONSE_3,
+        expected=INPUT_RESPONSE_3,
     )

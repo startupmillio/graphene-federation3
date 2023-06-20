@@ -260,7 +260,7 @@ async def test_user_schema(assert_schema_is, assert_graphql_response_data):
     assert_schema_is(
         actual=user_schema,
         # graphene 3.0
-        expected_3=USER_SCHEMA_3,
+        expected=USER_SCHEMA_3,
     )
     query = """
     query {
@@ -284,7 +284,7 @@ async def test_user_schema(assert_schema_is, assert_graphql_response_data):
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=USER_QUERY_RESPONSE_3,
+        expected=USER_QUERY_RESPONSE_3,
     )
 
 
@@ -294,7 +294,7 @@ async def test_chat_schema(assert_schema_is, assert_graphql_response_data):
     Check that the chat schema has been annotated correctly
     and that a request to retrieve a chat message works.
     """
-    assert_schema_is(actual=chat_schema, expected_3=CHAT_SCHEMA_3)
+    assert_schema_is(actual=chat_schema, expected=CHAT_SCHEMA_3)
     query = """
     query {
         message(id: "4") {
@@ -318,5 +318,5 @@ async def test_chat_schema(assert_schema_is, assert_graphql_response_data):
     assert not result.errors
     assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
-        expected_3=CHAT_QUERY_RESPONSE_3,
+        expected=CHAT_QUERY_RESPONSE_3,
     )
