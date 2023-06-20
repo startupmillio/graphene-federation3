@@ -30,7 +30,7 @@ setup(
     author_email="myrik260138@gmail.com",
     url="https://gitlab.com/live-art-project/graphene-federation3",
     keywords=["graphene", "gql", "federation"],
-    install_requires=["graphene>=3"],
+    install_requires=["graphene>=3", "graphql-core>=3.1.0"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

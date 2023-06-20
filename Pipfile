@@ -11,7 +11,8 @@ coverage = "*"
 pytest-asyncio = "==0.15.1"
 
 [packages]
-graphene = "*"
+graphene = ">3"
+graphql-core = ">=3.1.0"
 uvicorn = "*"
 fastapi = "*"
 starlette_graphene3 = "*"
