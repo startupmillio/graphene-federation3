@@ -2,7 +2,6 @@ import pytest
 from graphene import Field, ID, ObjectType, String
 from graphql import graphql
 
-from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
 from graphene_federation3.main import build_schema
 
@@ -35,7 +34,7 @@ MULTIPLE_KEYS_SCHEMA_3 = """schema {
 
 type Query {
   user: User
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -78,7 +77,7 @@ type User @key(fields: "email") @key(fields: "identifier") {
 
 
 @pytest.mark.asyncio
-async def test_multiple_keys():
+async def test_multiple_keys(assert_schema_is, assert_graphql_response_data):
     @key("identifier")
     @key("email")
     class User(ObjectType):
@@ -89,7 +88,7 @@ async def test_multiple_keys():
         user = Field(User)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=MULTIPLE_KEYS_SCHEMA_3,
     )
@@ -103,7 +102,7 @@ async def test_multiple_keys():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=MULTIPLE_KEYS_RESPONSE_3,
     )

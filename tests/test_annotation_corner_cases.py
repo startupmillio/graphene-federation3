@@ -2,7 +2,6 @@ import pytest
 from graphene import Field, ID, ObjectType, String
 from graphql import graphql
 
-from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
 from graphene_federation3.extend import extend, external, requires
 from graphene_federation3.main import build_schema
@@ -44,7 +43,7 @@ SIMILAR_FIELD_SCHEMA_3 = """schema {
 
 type Query {
   message(id: ID!): ChatMessage
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -137,7 +136,7 @@ CAMELCASE_SCHEMA_3 = """schema {
 
 type Query {
   camel: Camel
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -212,7 +211,7 @@ NOAUTOCAMELCASE_SCHEMA_3 = """schema {
 
 type Query {
   camel: Camel
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -289,13 +288,13 @@ FILTER_SCHEMA_3 = """schema {
 
 type Query {
   a: A
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
 type A {
   id: ID
-  b(id: ID = null): B
+  b(id: ID): B
 }
 
 type B {
@@ -331,7 +330,7 @@ FILTER_RESPONSE_3 = """type Query {
 
 extend type A  @key(fields: "id") {
   id: ID @external
-  b(id: ID = null): B
+  b(id: ID): B
 }
 
 type B @key(fields: "id") {
@@ -372,13 +371,13 @@ METANAME_SCHEMA_3 = """schema {
 
 type Query {
   a: Banana
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
 type Banana {
   id: ID
-  b(id: ID = null): Potato
+  b(id: ID): Potato
 }
 
 type Potato {
@@ -414,7 +413,7 @@ METANAME_RESPONSE_3 = """type Query {
 
 extend type Banana  @key(fields: "id") {
   id: ID @external
-  b(id: ID = null): Potato
+  b(id: ID): Potato
 }
 
 type Potato @key(fields: "id") {
@@ -424,7 +423,7 @@ type Potato @key(fields: "id") {
 
 
 @pytest.mark.asyncio
-async def test_similar_field_name():
+async def test_similar_field_name(assert_schema_is, assert_graphql_response_data):
     """
     Test annotation with fields that have similar names.
     """
@@ -445,7 +444,7 @@ async def test_similar_field_name():
         message = Field(ChatMessage, id=ID(required=True))
 
     chat_schema = build_schema(query=ChatQuery)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=chat_schema,
         expected_3=SIMILAR_FIELD_SCHEMA_3,
     )
@@ -459,14 +458,14 @@ async def test_similar_field_name():
     """
     result = await graphql(chat_schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=SIMILAR_FIELD_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_camel_case_field_name():
+async def test_camel_case_field_name(assert_schema_is, assert_graphql_response_data):
     """
     Test annotation with fields that have camel cases or snake case.
     """
@@ -482,7 +481,7 @@ async def test_camel_case_field_name():
         camel = Field(Camel)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=CAMELCASE_SCHEMA_3,
     )
@@ -496,14 +495,16 @@ async def test_camel_case_field_name():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=CAMELCASE_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_camel_case_field_name_without_auto_camelcase():
+async def test_camel_case_field_name_without_auto_camelcase(
+    assert_schema_is, assert_graphql_response_data
+):
     """
     Test annotation with fields that have camel cases or snake case but with the auto_camelcase disabled.
     """
@@ -519,7 +520,7 @@ async def test_camel_case_field_name_without_auto_camelcase():
         camel = Field(Camel)
 
     schema = build_schema(query=Query, auto_camelcase=False)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=NOAUTOCAMELCASE_SCHEMA_3,
     )
@@ -533,14 +534,16 @@ async def test_camel_case_field_name_without_auto_camelcase():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=NOAUTOCAMELCASE_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_annotated_field_also_used_in_filter():
+async def test_annotated_field_also_used_in_filter(
+    assert_schema_is, assert_graphql_response_data
+):
     """
     Test that when a field also used in filter needs to get annotated, it really annotates only the field.
     See issue https://github.com/preply/graphene-federation/issues/50
@@ -559,7 +562,7 @@ async def test_annotated_field_also_used_in_filter():
         a = Field(A)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=FILTER_SCHEMA_3,
     )
@@ -573,13 +576,15 @@ async def test_annotated_field_also_used_in_filter():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=FILTER_RESPONSE_3,
     )
 
 
-async def test_annotate_object_with_meta_name():
+async def test_annotate_object_with_meta_name(
+    assert_schema_is, assert_graphql_response_data
+):
     @key("id")
     class B(ObjectType):
         class Meta:
@@ -599,7 +604,7 @@ async def test_annotate_object_with_meta_name():
         a = Field(A)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=METANAME_SCHEMA_3,
     )
@@ -613,7 +618,7 @@ async def test_annotate_object_with_meta_name():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=METANAME_RESPONSE_3,
     )

@@ -2,7 +2,6 @@ import pytest
 from graphene import Field, ID, NonNull, ObjectType, String
 from graphql import graphql
 
-from graphene_federation3 import graphql_compatibility
 from graphene_federation3.entity import key
 from graphene_federation3.extend import extend, external
 from graphene_federation3.main import build_schema
@@ -117,7 +116,7 @@ USER_SCHEMA_3 = """schema {
 
 type Query {
   user(userId: ID!): User
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -193,7 +192,7 @@ CHAT_SCHEMA_3 = """schema {
 
 type Query {
   message(id: ID!): ChatMessage
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -253,12 +252,12 @@ extend type ChatUser  @key(fields: "userId") {
 
 
 @pytest.mark.asyncio
-async def test_user_schema():
+async def test_user_schema(assert_schema_is, assert_graphql_response_data):
     """
     Check that the user schema has been annotated correctly
     and that a request to retrieve a user works.
     """
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=user_schema,
         # graphene 3.0
         expected_3=USER_SCHEMA_3,
@@ -283,19 +282,19 @@ async def test_user_schema():
     """
     result = await graphql(user_schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=USER_QUERY_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_chat_schema():
+async def test_chat_schema(assert_schema_is, assert_graphql_response_data):
     """
     Check that the chat schema has been annotated correctly
     and that a request to retrieve a chat message works.
     """
-    graphql_compatibility.assert_schema_is(actual=chat_schema, expected_3=CHAT_SCHEMA_3)
+    assert_schema_is(actual=chat_schema, expected_3=CHAT_SCHEMA_3)
     query = """
     query {
         message(id: "4") {
@@ -317,7 +316,7 @@ async def test_chat_schema():
     """
     result = await graphql(chat_schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=CHAT_QUERY_RESPONSE_3,
     )

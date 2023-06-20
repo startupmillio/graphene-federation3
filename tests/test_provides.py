@@ -2,7 +2,6 @@ import pytest
 from graphene import Field, Int, ObjectType, String
 from graphql import graphql
 
-from graphene_federation3 import graphql_compatibility
 from graphene_federation3.extend import extend, external
 from graphene_federation3.main import build_schema
 from graphene_federation3.provides import provides
@@ -43,7 +42,7 @@ PROVIDES_SCHEMA_3 = """schema {
 
 type Query {
   inStockCount: InStockCount
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -139,7 +138,7 @@ MULTIPLE_SCHEMA_3 = """schema {
 
 type Query {
   inStockCount: InStockCount
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -233,7 +232,7 @@ LIST_SCHEMA_3 = """schema {
 
 type Query {
   inStockCount: InStockCount
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -301,7 +300,7 @@ query {
 
 
 @pytest.mark.asyncio
-async def test_provides():
+async def test_provides(assert_schema_is, assert_graphql_response_data):
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -321,21 +320,21 @@ async def test_provides():
         in_stock_count = Field(InStockCount)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=PROVIDES_SCHEMA_3,
     )
     # Check the federation service schema definition language
     result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=PROVIDES_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_provides_multiple_fields():
+async def test_provides_multiple_fields(assert_schema_is, assert_graphql_response_data):
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -355,21 +354,23 @@ async def test_provides_multiple_fields():
         in_stock_count = Field(InStockCount)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=MULTIPLE_SCHEMA_3,
     )
     # Check the federation service schema definition language
     result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=MULTIPLE_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_provides_multiple_fields_as_list():
+async def test_provides_multiple_fields_as_list(
+    assert_schema_is, assert_graphql_response_data
+):
     """
     https://www.apollographql.com/docs/federation/entities/#resolving-another-services-field-advanced
     """
@@ -389,14 +390,14 @@ async def test_provides_multiple_fields_as_list():
         in_stock_count = Field(InStockCount)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=LIST_SCHEMA_3,
     )
     # Check the federation service schema definition language
     result = await graphql(schema.graphql_schema, SDL_QUERY)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=LIST_RESPONSE_3,
     )

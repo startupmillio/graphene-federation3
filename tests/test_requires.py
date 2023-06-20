@@ -2,7 +2,6 @@ import pytest
 from graphene import Field, ID, Int, ObjectType, String
 from graphql import graphql
 
-from graphene_federation3 import graphql_compatibility
 from graphene_federation3.extend import extend, external, requires
 from graphene_federation3.main import build_schema
 
@@ -37,7 +36,7 @@ PRODUCT_SCHEMA_3 = """schema {
 
 type Query {
   product: Product
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -115,7 +114,7 @@ MULTIPLE_FIELDS_SCHEMA_3 = """schema {
 
 type Query {
   product: Product
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -173,7 +172,7 @@ type Acme {
 
 type Query {
   acme: Acme
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
@@ -192,14 +191,14 @@ INPUT_SCHEMA_3 = """schema {
 
 type Query {
   acme: Acme
-  _entities(representations: [_Any] = null): [_Entity]
+  _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
 
 type Acme {
   id: ID!
   age: Int
-  foo(someInput: String = null): String
+  foo(someInput: String): String
 }
 
 union _Entity = Acme
@@ -231,7 +230,7 @@ INPUT_RESPONSE_3 = """type Query {
 extend type Acme  @key(fields: "id") {
   id: ID! @external
   age: Int @external
-  foo(someInput: String = null): String @requires(fields: "age")
+  foo(someInput: String): String @requires(fields: "age")
 }
 """
 
@@ -251,7 +250,7 @@ def test_chain_requires_failure():
 
 
 @pytest.mark.asyncio
-async def test_requires_multiple_fields():
+async def test_requires_multiple_fields(assert_schema_is, assert_graphql_response_data):
     """
     Check that requires can take more than one field as input.
     """
@@ -267,7 +266,7 @@ async def test_requires_multiple_fields():
         product = Field(Product)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=PRODUCT_SCHEMA_3,
     )
@@ -281,13 +280,15 @@ async def test_requires_multiple_fields():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=PRODUCTION_RESPONSE_3,
     )
 
 
-async def test_requires_multiple_fields_as_list():
+async def test_requires_multiple_fields_as_list(
+    assert_schema_is, assert_graphql_response_data
+):
     """
     Check that requires can take more than one field as input.
     """
@@ -303,7 +304,7 @@ async def test_requires_multiple_fields_as_list():
         product = Field(Product)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=MULTIPLE_FIELDS_SCHEMA_3,
     )
@@ -317,14 +318,14 @@ async def test_requires_multiple_fields_as_list():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=MULTIPLE_FIELDS_RESPONSE_3,
     )
 
 
 @pytest.mark.asyncio
-async def test_requires_with_input():
+async def test_requires_with_input(assert_schema_is, assert_graphql_response_data):
     """
     Test checking that the issue https://github.com/preply/graphene-federation/pull/47 is resolved.
     """
@@ -339,7 +340,7 @@ async def test_requires_with_input():
         acme = Field(Acme)
 
     schema = build_schema(query=Query)
-    graphql_compatibility.assert_schema_is(
+    assert_schema_is(
         actual=schema,
         expected_3=INPUT_SCHEMA_3,
     )
@@ -353,7 +354,7 @@ async def test_requires_with_input():
     """
     result = await graphql(schema.graphql_schema, query)
     assert not result.errors
-    graphql_compatibility.assert_graphql_response_data(
+    assert_graphql_response_data(
         actual=result.data["_service"]["sdl"].strip(),
         expected_3=INPUT_RESPONSE_3,
     )

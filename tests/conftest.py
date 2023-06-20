@@ -1,7 +1,10 @@
 from unittest.mock import patch
 
 import pytest
+from graphene import Schema
 from graphql import ASTValidationRule, GraphQLError
+
+from graphene_federation3.graphql_compatibility import get_schema_str
 
 
 @pytest.fixture
@@ -28,3 +31,19 @@ def raise_graphql():
         GraphQLError, "__init__", init
     ):
         yield
+
+
+@pytest.fixture
+def assert_schema_is():
+    def cmp(actual: Schema, expected_3: str):
+        assert get_schema_str(actual).strip() == expected_3.strip()
+
+    return cmp
+
+
+@pytest.fixture
+def assert_graphql_response_data():
+    def cmp(actual: str, expected_3: str):
+        assert actual.strip() == expected_3.strip()
+
+    return cmp

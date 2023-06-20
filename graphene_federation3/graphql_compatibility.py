@@ -2,7 +2,7 @@
 Allows the project to interact to graphql using both graphene 2.1.8 and 3.0.0b7.
 Other function to preserve backwards compatibiolity may be added in the future
 """
-from typing import Dict, Optional
+from typing import Optional
 
 from graphene import Schema
 from graphene.types.schema import TypeMap
@@ -13,19 +13,6 @@ from graphql.utilities.print_schema import (
     print_description,
     print_schema,
 )
-
-
-def assert_schema_is(actual: Schema, expected_3: str):
-    actual_str = get_schema_str(actual)
-    assert (
-        actual_str == expected_3
-    ), f"\n{actual_str}\n!=\n{expected_3}\nDIFFERENCES: {list(filter(lambda x: x[1][0] != x[1][1], enumerate(zip(actual_str.strip(), expected_3.strip()))))}"
-
-
-def assert_graphql_response_data(actual: str, expected_3: str):
-    assert (
-        actual.strip() == expected_3.strip()
-    ), f"\n{actual.strip()}\n!=\n{expected_3.strip()}\nDIFFERENCES: {list(filter(lambda x: x[1][0] != x[1][1], enumerate(zip(actual.strip(), expected_3.strip()))))}"
 
 
 def call_schema_print_fields(schema: Schema, t: type) -> str:
@@ -41,27 +28,28 @@ def call_schema_print_fields(schema: Schema, t: type) -> str:
     return "\n".join(fields)
 
 
+def print_schema_definition_forced(
+    schema: GraphQLSchema,
+) -> Optional[str]:
+    # picked from print_schema_definition and removed the early return
+    operation_types = []
+
+    query_type = schema.query_type
+    if query_type:
+        operation_types.append(f"  query: {query_type.name}")
+
+    mutation_type = schema.mutation_type
+    if mutation_type:
+        operation_types.append(f"  mutation: {mutation_type.name}")
+
+    subscription_type = schema.subscription_type
+    if subscription_type:
+        operation_types.append(f"  subscription: {subscription_type.name}")
+
+    return "schema {\n" + "\n".join(operation_types) + "\n}"
+
+
 def get_schema_str(schema: Schema) -> str:
-    def print_schema_definition_forced(
-        schema: GraphQLSchema,
-    ) -> Optional[str]:
-        # picked from print_schema_definition and removed the early return
-        operation_types = []
-
-        query_type = schema.query_type
-        if query_type:
-            operation_types.append(f"  query: {query_type.name}")
-
-        mutation_type = schema.mutation_type
-        if mutation_type:
-            operation_types.append(f"  mutation: {mutation_type.name}")
-
-        subscription_type = schema.subscription_type
-        if subscription_type:
-            operation_types.append(f"  subscription: {subscription_type.name}")
-
-        return "schema {\n" + "\n".join(operation_types) + "\n}"
-
     result = (
         print_schema_definition_forced(schema.graphql_schema)
         + "\n\n"
